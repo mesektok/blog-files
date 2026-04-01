@@ -28,7 +28,7 @@
     button:hover { background: #A67B5B; }
 
     #quiz-screen {
-      max-width: 700px;
+      max-width: 720px;
       margin: 0 auto;
     }
     #progress {
@@ -38,18 +38,19 @@
     }
     #question-text {
       font-size: 22px;
-      min-height: 90px;
+      min-height: 100px;
       margin: 30px 0;
       padding: 0 20px;
+      line-height: 1.4;
     }
     .option {
       display: block;
       background: white;
       border: 2px solid #ddd;
       margin: 12px auto;
-      padding: 16px;
+      padding: 16px 20px;
       width: 85%;
-      max-width: 520px;
+      max-width: 540px;
       border-radius: 10px;
       font-size: 17px;
       cursor: pointer;
@@ -74,7 +75,7 @@
   <!-- 시작 화면 -->
   <div id="start-screen">
     <h1>MBTI 성격 유형 검사</h1>
-    <p>솔직하게 답변해주세요! (약 5~8분 소요)</p>
+    <p>솔직하게 답변해주세요!<br>(총 20문항, 약 5~7분 소요)</p>
     <button onclick="startTest()">테스트 시작하기</button>
   </div>
 
@@ -89,7 +90,7 @@
   <div id="result-screen" class="hidden">
     <h1>당신의 MBTI 유형은</h1>
     <div id="mbti-type"></div>
-    <p id="description" style="font-size: 18px; line-height: 1.7; max-width: 600px; margin: 30px auto;"></p>
+    <p id="description" style="font-size: 18px; line-height: 1.7; max-width: 620px; margin: 30px auto;"></p>
     <button onclick="restart()">다시 하기</button>
   </div>
 
@@ -103,10 +104,15 @@
         {text:"보통이다", score:{}}, 
         {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}
       ]},
-      { q: "혼자 조용히 책 읽거나 생각하는 시간을 더 좋아한다.", options: [
+      { q: "혼자 조용히 있는 시간을 더 좋아한다.", options: [
         {text:"매우 그렇다", score:{I:2}}, {text:"그렇다", score:{I:1}},
         {text:"보통이다", score:{}}, 
         {text:"아니다", score:{E:1}}, {text:"매우 아니다", score:{E:2}}
+      ]},
+      { q: "새로운 사람을 만나서 이야기 나누는 것을 즐긴다.", options: [
+        {text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}
       ]},
       { q: "현실적인 사실과 구체적인 경험을 중요하게 생각한다.", options: [
         {text:"매우 그렇다", score:{S:2}}, {text:"그렇다", score:{S:1}},
@@ -114,6 +120,11 @@
         {text:"아니다", score:{N:1}}, {text:"매우 아니다", score:{N:2}}
       ]},
       { q: "미래의 가능성이나 새로운 아이디어를 상상하는 것을 좋아한다.", options: [
+        {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
+      ]},
+      { q: "단순하고 직관적인 설명보다 복잡하고 참신한 아이디어가 더 흥미롭다.", options: [
         {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
         {text:"보통이다", score:{}}, 
         {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
@@ -128,6 +139,11 @@
         {text:"보통이다", score:{}}, 
         {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}
       ]},
+      { q: "논쟁에서 이기는 것보다 상대방의 기분을 맞춰주는 게 더 중요하다.", options: [
+        {text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}
+      ]},
       { q: "계획을 세우고 그 계획대로 움직이는 것을 선호한다.", options: [
         {text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}},
         {text:"보통이다", score:{}}, 
@@ -138,8 +154,51 @@
         {text:"보통이다", score:{}}, 
         {text:"아니다", score:{J:1}}, {text:"매우 아니다", score:{J:2}}
       ]},
-      // 더 정확한 결과를 원하시면 아래처럼 12~20개까지 추가 가능합니다.
-      // 지금은 8개로 테스트용으로 만들었어요. 필요하면 더 만들어 드릴게요.
+      { q: "일정을 미리 짜두고 따르는 편이다.", options: [
+        {text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}
+      ]},
+      { q: "혼자서 조용히 산책하거나 생각하는 시간을 즐긴다.", options: [
+        {text:"매우 그렇다", score:{I:2}}, {text:"그렇다", score:{I:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{E:1}}, {text:"매우 아니다", score:{E:2}}
+      ]},
+      { q: "새로운 장소나 경험을 탐험하는 것을 좋아한다.", options: [
+        {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
+      ]},
+      { q: "친구가 힘들어할 때 공감하며 들어주는 편이다.", options: [
+        {text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}
+      ]},
+      { q: "마감 기한이 정해진 일을 미리미리 준비한다.", options: [
+        {text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}
+      ]},
+      { q: "사실에 기반한 논리적인 설명을 선호한다.", options: [
+        {text:"매우 그렇다", score:{T:2}}, {text:"그렇다", score:{T:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{F:1}}, {text:"매우 아니다", score:{F:2}}
+      ]},
+      { q: "현재 일어나는 일에 집중하기보다는 미래의 가능성을 생각한다.", options: [
+        {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
+      ]},
+      { q: "사람들과 함께하는 활동에서 활력을 얻는다.", options: [
+        {text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}
+      ]},
+      { q: "일상에서 세부적인 사실이나 숫자를 잘 기억하는 편이다.", options: [
+        {text:"매우 그렇다", score:{S:2}}, {text:"그렇다", score:{S:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{N:1}}, {text:"매우 아니다", score:{N:2}}
+      ]}
     ];
 
     function startTest() {
@@ -194,16 +253,20 @@
 
       document.getElementById("mbti-type").textContent = mbti;
 
-      const desc = {
-        "ENFP": "활기차고 창의적인 아이디어 뱅크! 사람들과 함께 새로운 것을 탐험하는 걸 좋아해요.",
-        "INTJ": "전략가. 체계적으로 미래를 계획하고 목표를 달성하는 타입입니다.",
-        "ISTJ": "책임감 강하고 신뢰할 수 있는 실무자 타입.",
-        "ENFJ": "타인을 이끌고 공감하는 따뜻한 리더.",
-        // 필요하면 16개 모두 추가해 드릴게요
+      const descriptions = {
+        "ENFP": "열정적이고 창의적인 아이디어 뱅크! 새로운 사람과 경험을 좋아하며, 긍정 에너지를 퍼뜨립니다.",
+        "INTJ": "전략가. 미래를 계획하고 체계적으로 목표를 달성하는 타입입니다.",
+        "ISTJ": "책임감 강하고 신뢰할 수 있는 실무자. 세부 사항을 꼼꼼히 챙깁니다.",
+        "ENFJ": "타인을 이끌고 공감하는 따뜻한 리더. 조화로운 관계를 중요하게 생각합니다.",
+        "INFP": "이상주의자. 깊은 가치관과 창의성을 가진 내면이 풍부한 타입입니다.",
+        "ESTP": "활동적이고 실전적인 문제 해결사. 즉흥적으로 대처하는 걸 잘합니다.",
+        "ISFJ": "보호자. 세심하고 헌신적이며, 주변 사람들을 잘 챙깁니다.",
+        "ENTJ": "대담한 지도자. 리더십이 강하고 목표 달성을 위해 전략적으로 움직입니다."
+        // 필요하면 더 많은 유형 설명을 추가해 드릴 수 있어요!
       };
 
       document.getElementById("description").textContent = 
-        desc[mbti] || `${mbti} 유형은 독특하고 매력적인 성격을 가지고 있습니다!`;
+        descriptions[mbti] || `${mbti} 유형은 독특하고 매력적인 성격을 가지고 계시네요!`;
     }
 
     function restart() {
