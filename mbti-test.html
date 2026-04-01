@@ -12,6 +12,7 @@
       padding: 20px;
       text-align: center;
       color: #333;
+      line-height: 1.6;
     }
     h1 { color: #333; margin: 20px 0 10px; }
     p { color: #666; }
@@ -60,12 +61,52 @@
       border-color: #8B5A2B;
       background: #fffaf0;
     }
-    #result-screen h1 { font-size: 28px; }
+
+    #result-screen {
+      max-width: 720px;
+      margin: 0 auto;
+    }
     #mbti-type {
-      font-size: 52px;
+      font-size: 56px;
       font-weight: bold;
       color: #8B5A2B;
-      margin: 20px 0;
+      margin: 15px 0 10px;
+      letter-spacing: 4px;
+    }
+    #description {
+      font-size: 17.5px;
+      text-align: left;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin: 20px auto;
+      line-height: 1.75;
+    }
+    .analysis {
+      display: flex;
+      gap: 20px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .strengths, .weaknesses {
+      flex: 1;
+      min-width: 300px;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      text-align: left;
+    }
+    .strengths h3 { color: #2E8B57; margin-top: 0; }
+    .weaknesses h3 { color: #C0392B; margin-top: 0; }
+    ul {
+      padding-left: 20px;
+      margin: 10px 0 0;
+    }
+    li {
+      margin-bottom: 8px;
     }
     .hidden { display: none; }
   </style>
@@ -90,7 +131,20 @@
   <div id="result-screen" class="hidden">
     <h1>당신의 MBTI 유형은</h1>
     <div id="mbti-type"></div>
-    <p id="description" style="font-size: 18px; line-height: 1.7; max-width: 620px; margin: 30px auto;"></p>
+    
+    <div id="description"></div>
+
+    <div class="analysis">
+      <div class="strengths">
+        <h3>✅ 강점</h3>
+        <ul id="strength-list"></ul>
+      </div>
+      <div class="weaknesses">
+        <h3>⚠️ 약점</h3>
+        <ul id="weakness-list"></ul>
+      </div>
+    </div>
+
     <button onclick="restart()">다시 하기</button>
   </div>
 
@@ -99,107 +153,111 @@
     let scores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
 
     const questions = [
-      { q: "사람이 많은 파티나 모임에서 에너지를 얻는 편이다.", options: [
-        {text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}
-      ]},
-      { q: "혼자 조용히 있는 시간을 더 좋아한다.", options: [
-        {text:"매우 그렇다", score:{I:2}}, {text:"그렇다", score:{I:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{E:1}}, {text:"매우 아니다", score:{E:2}}
-      ]},
-      { q: "새로운 사람을 만나서 이야기 나누는 것을 즐긴다.", options: [
-        {text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}
-      ]},
-      { q: "현실적인 사실과 구체적인 경험을 중요하게 생각한다.", options: [
-        {text:"매우 그렇다", score:{S:2}}, {text:"그렇다", score:{S:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{N:1}}, {text:"매우 아니다", score:{N:2}}
-      ]},
-      { q: "미래의 가능성이나 새로운 아이디어를 상상하는 것을 좋아한다.", options: [
-        {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
-      ]},
-      { q: "단순하고 직관적인 설명보다 복잡하고 참신한 아이디어가 더 흥미롭다.", options: [
-        {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
-      ]},
-      { q: "결정을 내릴 때 논리와 객관적인 사실을 우선한다.", options: [
-        {text:"매우 그렇다", score:{T:2}}, {text:"그렇다", score:{T:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{F:1}}, {text:"매우 아니다", score:{F:2}}
-      ]},
-      { q: "타인의 감정과 상황을 먼저 고려해서 결정한다.", options: [
-        {text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}
-      ]},
-      { q: "논쟁에서 이기는 것보다 상대방의 기분을 맞춰주는 게 더 중요하다.", options: [
-        {text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}
-      ]},
-      { q: "계획을 세우고 그 계획대로 움직이는 것을 선호한다.", options: [
-        {text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}
-      ]},
-      { q: "즉흥적으로 유연하게 상황에 대처하는 것을 좋아한다.", options: [
-        {text:"매우 그렇다", score:{P:2}}, {text:"그렇다", score:{P:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{J:1}}, {text:"매우 아니다", score:{J:2}}
-      ]},
-      { q: "일정을 미리 짜두고 따르는 편이다.", options: [
-        {text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}
-      ]},
-      { q: "혼자서 조용히 산책하거나 생각하는 시간을 즐긴다.", options: [
-        {text:"매우 그렇다", score:{I:2}}, {text:"그렇다", score:{I:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{E:1}}, {text:"매우 아니다", score:{E:2}}
-      ]},
-      { q: "새로운 장소나 경험을 탐험하는 것을 좋아한다.", options: [
-        {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
-      ]},
-      { q: "친구가 힘들어할 때 공감하며 들어주는 편이다.", options: [
-        {text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}
-      ]},
-      { q: "마감 기한이 정해진 일을 미리미리 준비한다.", options: [
-        {text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}
-      ]},
-      { q: "사실에 기반한 논리적인 설명을 선호한다.", options: [
-        {text:"매우 그렇다", score:{T:2}}, {text:"그렇다", score:{T:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{F:1}}, {text:"매우 아니다", score:{F:2}}
-      ]},
-      { q: "현재 일어나는 일에 집중하기보다는 미래의 가능성을 생각한다.", options: [
-        {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
-      ]},
-      { q: "사람들과 함께하는 활동에서 활력을 얻는다.", options: [
-        {text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}
-      ]},
-      { q: "일상에서 세부적인 사실이나 숫자를 잘 기억하는 편이다.", options: [
-        {text:"매우 그렇다", score:{S:2}}, {text:"그렇다", score:{S:1}},
-        {text:"보통이다", score:{}}, 
-        {text:"아니다", score:{N:1}}, {text:"매우 아니다", score:{N:2}}
-      ]}
+      { q: "사람이 많은 파티나 모임에서 에너지를 얻는 편이다.", options: [{text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}]},
+      { q: "혼자 조용히 있는 시간을 더 좋아한다.", options: [{text:"매우 그렇다", score:{I:2}}, {text:"그렇다", score:{I:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{E:1}}, {text:"매우 아니다", score:{E:2}}]},
+      { q: "새로운 사람을 만나서 이야기 나누는 것을 즐긴다.", options: [{text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}]},
+      { q: "현실적인 사실과 구체적인 경험을 중요하게 생각한다.", options: [{text:"매우 그렇다", score:{S:2}}, {text:"그렇다", score:{S:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{N:1}}, {text:"매우 아니다", score:{N:2}}]},
+      { q: "미래의 가능성이나 새로운 아이디어를 상상하는 것을 좋아한다.", options: [{text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}]},
+      { q: "단순하고 직관적인 설명보다 복잡하고 참신한 아이디어가 더 흥미롭다.", options: [{text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}]},
+      { q: "결정을 내릴 때 논리와 객관적인 사실을 우선한다.", options: [{text:"매우 그렇다", score:{T:2}}, {text:"그렇다", score:{T:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{F:1}}, {text:"매우 아니다", score:{F:2}}]},
+      { q: "타인의 감정과 상황을 먼저 고려해서 결정한다.", options: [{text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}]},
+      { q: "논쟁에서 이기는 것보다 상대방의 기분을 맞춰주는 게 더 중요하다.", options: [{text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}]},
+      { q: "계획을 세우고 그 계획대로 움직이는 것을 선호한다.", options: [{text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}]},
+      { q: "즉흥적으로 유연하게 상황에 대처하는 것을 좋아한다.", options: [{text:"매우 그렇다", score:{P:2}}, {text:"그렇다", score:{P:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{J:1}}, {text:"매우 아니다", score:{J:2}}]},
+      { q: "일정을 미리 짜두고 따르는 편이다.", options: [{text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}]},
+      { q: "혼자서 조용히 산책하거나 생각하는 시간을 즐긴다.", options: [{text:"매우 그렇다", score:{I:2}}, {text:"그렇다", score:{I:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{E:1}}, {text:"매우 아니다", score:{E:2}}]},
+      { q: "새로운 장소나 경험을 탐험하는 것을 좋아한다.", options: [{text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}]},
+      { q: "친구가 힘들어할 때 공감하며 들어주는 편이다.", options: [{text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}]},
+      { q: "마감 기한이 정해진 일을 미리미리 준비한다.", options: [{text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}]},
+      { q: "사실에 기반한 논리적인 설명을 선호한다.", options: [{text:"매우 그렇다", score:{T:2}}, {text:"그렇다", score:{T:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{F:1}}, {text:"매우 아니다", score:{F:2}}]},
+      { q: "현재 일어나는 일에 집중하기보다는 미래의 가능성을 생각한다.", options: [{text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}]},
+      { q: "사람들과 함께하는 활동에서 활력을 얻는다.", options: [{text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}]},
+      { q: "일상에서 세부적인 사실이나 숫자를 잘 기억하는 편이다.", options: [{text:"매우 그렇다", score:{S:2}}, {text:"그렇다", score:{S:1}}, {text:"보통이다", score:{}}, {text:"아니다", score:{N:1}}, {text:"매우 아니다", score:{N:2}}]}
     ];
+
+    // 16개 유형 상세 설명 + 강점·약점 분석
+    const typeData = {
+      "ENFP": {
+        desc: "활기차고 창의적인 **아이디어 뱅크**입니다. 새로운 사람, 새로운 경험을 좋아하며 긍정적인 에너지를 주변에 퍼뜨립니다. 자유롭고 열정적이며, 가능성을 보는 재능이 뛰어나지만, 때로는 마무리가 약할 수 있어요.",
+        strengths: ["뛰어난 창의력과 아이디어 생성 능력", "사람을 끌어들이는 밝고 따뜻한 매력", "빠른 적응력과 긍정적인 에너지", "열정적으로 목표를 추구"],
+        weaknesses: ["집중력과 마무리가 약한 편", "계획을 세우고 지키기 어려움", "감정 기복이 있을 수 있음", "현실적인 세부 사항을 놓치기 쉬움"]
+      },
+      "ENTP": {
+        desc: "논쟁을 즐기고 지적 호기심이 강한 **발명가** 타입입니다. 빠른 사고와 유머 감각으로 주변을 즐겁게 하며, 새로운 아이디어를 끊임없이 만들어냅니다.",
+        strengths: ["빠른 사고와 문제 해결 능력", "혁신적인 아이디어 창출", "유연하고 적응력이 강함", "유머와 설득력이 뛰어남"],
+        weaknesses: ["지루한 일상이나 반복 업무에 약함", "약속이나 마무리를 잘 지키지 못함", "논쟁을 즐겨 관계가 어려울 수 있음"]
+      },
+      "ENFJ": {
+        desc: "타인을 이끌고 공감하는 **따뜻한 리더**입니다. 사람들의 감정을 잘 읽고 조화로운 관계를 만들며, 공동의 목표를 위해 헌신합니다.",
+        strengths: ["강한 공감 능력과 리더십", "사람을 동기부여하는 카리스마", "조직과 팀을 조화롭게 이끔", "미래 비전을 제시하는 능력"],
+        weaknesses: ["타인의 의견을 너무 신경 씀", "자신의 필요를 뒤로 미루는 경향", "스트레스를 혼자 감당하려 함"]
+      },
+      "ENTJ": {
+        desc: "대담하고 전략적인 **지도자**입니다. 명확한 목표를 세우고 효율적으로 달성하는 능력이 뛰어나며, 리더십이 강합니다.",
+        strengths: ["강력한 리더십과 실행력", "장기적인 전략 수립 능력", "효율성과 생산성을 중시", "결단력이 뛰어남"],
+        weaknesses: ["너무 직설적이고 완벽주의", "타인의 감정을 간과할 수 있음", "휴식과 여유를 놓치기 쉬움"]
+      },
+      "INFP": {
+        desc: "이상과 가치를 중요하게 여기는 **이상주의자**입니다. 깊은 내면 세계를 가지고 있으며, 창의성과 공감 능력이 뛰어나요.",
+        strengths: ["강한 가치관과 진정성", "뛰어난 창의력과 공감 능력", "유연하고 포용적인 태도", "의미 있는 일을 추구"],
+        weaknesses: ["현실적인 실행력이 약함", "감정적으로 상처받기 쉬움", "결정 장애가 있을 수 있음"]
+      },
+      "INTP": {
+        desc: "논리적이고 분석적인 **철학자** 타입입니다. 복잡한 문제를 깊이 파고들며, 독립적인 사고를 즐깁니다.",
+        strengths: ["논리적 분석력과 문제 해결 능력", "독창적인 사고", "객관성과 지적 호기심", "지식을 빠르게 습득"],
+        weaknesses: ["사회적 상호작용이 다소 서툴음", "감정 표현이 부족할 수 있음", "실제 실행보다는 이론에 머무름"]
+      },
+      "INFJ": {
+        desc: "통찰력 있고 이상적인 **선지자** 타입입니다. 깊은 공감 능력과 미래를 내다보는 직관을 가지고 있으며, 사람들을 돕고 세상을 더 나은 곳으로 만들고 싶어합니다.",
+        strengths: ["깊은 통찰력과 직관", "강한 공감 능력", "장기적인 비전 제시", "헌신적이고 이상을 추구"],
+        weaknesses: ["완벽주의로 인한 스트레스", "타인의 감정을 너무 많이 짊어짐", "현실과 이상의 괴리"]
+      },
+      "INTJ": {
+        desc: "전략적이고 독립적인 **전략가**입니다. 체계적으로 계획을 세우고 장기적인 목표를 달성하는 데 탁월합니다.",
+        strengths: ["전략적 사고와 계획 능력", "독립적이고 높은 집중력", "장기적인 목표 달성력", "높은 기준과 실행력"],
+        weaknesses: ["감정 표현이 서툴음", "타인을 통제하려는 경향", "너무 완벽을 추구해 피로함"]
+      },
+      "ESFP": {
+        desc: "즐겁고 사교적인 **연예인** 타입입니다. 현재를 즐기며, 사람들과 함께하는 순간을 소중히 여깁니다.",
+        strengths: ["밝고 긍정적인 에너지", "즉흥적이고 유연한 적응력", "사람들과 잘 어울림", "현실을 즐기는 능력"],
+        weaknesses: ["장기 계획을 세우기 어려움", "집중력이 산만할 수 있음", "감정적으로 충동적"]
+      },
+      "ESTP": {
+        desc: "활동적이고 실전적인 **사업가** 타입입니다. 위기 상황에서도 빠르게 대처하며, 스릴과 도전을 즐깁니다.",
+        strengths: ["실전적 문제 해결 능력", "빠른 판단력과 행동력", "위기 대처 능력", "유연하고 현실적"],
+        weaknesses: ["장기적인 계획이 부족", "위험을 과소평가할 수 있음", "지루한 일에 약함"]
+      },
+      "ESFJ": {
+        desc: "친절하고 책임감 있는 **보호자**입니다. 주변 사람들을 잘 챙기고, 조화로운 분위기를 만드는 데 탁월합니다.",
+        strengths: ["강한 책임감과 배려심", "조화로운 관계 구축", "실용적이고 세심함", "팀워크를 중시"],
+        weaknesses: ["변화에 다소 느림", "타인의 비판에 민감", "자신의 필요를 뒤로 미룸"]
+      },
+      "ESTJ": {
+        desc: "실용적이고 단호한 **관리자** 타입입니다. 규칙과 질서를 중시하며, 효율적으로 일을 추진합니다.",
+        strengths: ["강한 실행력과 조직력", "책임감과 리더십", "효율적인 관리 능력", "명확한 기준 제시"],
+        weaknesses: ["너무 엄격하고 직설적", "변화와 유연성 부족", "감정적인 면을 간과"]
+      },
+      "ISFP": {
+        desc: "부드럽고 예술적인 **예술가** 타입입니다. 조용한 가운데도 깊은 감수성을 가지고 있으며, 자신의 가치관에 따라 자유롭게 살아갑니다.",
+        strengths: ["뛰어난 예술적 감수성", "부드럽고 따뜻한 성격", "현재를 즐기는 능력", "자유롭고 진정성 있음"],
+        weaknesses: ["결정과 실행이 느림", "갈등 상황을 피하려 함", "장기 계획이 약함"]
+      },
+      "ISTP": {
+        desc: "논리적이고 실용적인 **장인** 타입입니다. 손으로 무언가를 만드는 것을 좋아하고, 기계나 시스템을 분석하는 데 능숙합니다.",
+        strengths: ["실용적 문제 해결 능력", "기계적·논리적 사고", "독립성과 침착함", "위기 대처 능력"],
+        weaknesses: ["감정 표현이 서툴음", "장기 계획에 약함", "사회적 상황이 불편할 수 있음"]
+      },
+      "ISFJ": {
+        desc: "헌신적이고 세심한 **수호자**입니다. 주변 사람들을 따뜻하게 돌보고, 약속과 책임을 중요하게 여깁니다.",
+        strengths: ["강한 책임감과 충성심", "세심한 배려와 관찰력", "안정적이고 신뢰할 수 있음", "실용적 도움"],
+        weaknesses: ["변화에 느리고 스트레스 받음", "자신의 필요를 표현하지 않음", "완벽주의 성향"]
+      },
+      "ISTJ": {
+        desc: "성실하고 신뢰할 수 있는 **검사관** 타입입니다. 꼼꼼하고 체계적이며, 주어진 일을 책임감 있게 완수합니다.",
+        strengths: ["꼼꼼하고 체계적인 성향", "강한 책임감과 신뢰성", "사실 기반의 현실적 판단", "꾸준한 노력"],
+        weaknesses: ["변화와 새로운 시도에 보수적", "감정적인 유연성 부족", "너무 엄격할 수 있음"]
+      }
+    };
 
     function startTest() {
       document.getElementById("start-screen").classList.add("hidden");
@@ -253,20 +311,18 @@
 
       document.getElementById("mbti-type").textContent = mbti;
 
-      const descriptions = {
-        "ENFP": "열정적이고 창의적인 아이디어 뱅크! 새로운 사람과 경험을 좋아하며, 긍정 에너지를 퍼뜨립니다.",
-        "INTJ": "전략가. 미래를 계획하고 체계적으로 목표를 달성하는 타입입니다.",
-        "ISTJ": "책임감 강하고 신뢰할 수 있는 실무자. 세부 사항을 꼼꼼히 챙깁니다.",
-        "ENFJ": "타인을 이끌고 공감하는 따뜻한 리더. 조화로운 관계를 중요하게 생각합니다.",
-        "INFP": "이상주의자. 깊은 가치관과 창의성을 가진 내면이 풍부한 타입입니다.",
-        "ESTP": "활동적이고 실전적인 문제 해결사. 즉흥적으로 대처하는 걸 잘합니다.",
-        "ISFJ": "보호자. 세심하고 헌신적이며, 주변 사람들을 잘 챙깁니다.",
-        "ENTJ": "대담한 지도자. 리더십이 강하고 목표 달성을 위해 전략적으로 움직입니다."
-        // 필요하면 더 많은 유형 설명을 추가해 드릴 수 있어요!
-      };
+      const data = typeData[mbti];
 
-      document.getElementById("description").textContent = 
-        descriptions[mbti] || `${mbti} 유형은 독특하고 매력적인 성격을 가지고 계시네요!`;
+      // 설명
+      document.getElementById("description").innerHTML = `<strong>${mbti}</strong> - ${data.desc}`;
+
+      // 강점 리스트
+      const strengthList = document.getElementById("strength-list");
+      strengthList.innerHTML = data.strengths.map(item => `<li>${item}</li>`).join("");
+
+      // 약점 리스트
+      const weaknessList = document.getElementById("weakness-list");
+      weaknessList.innerHTML = data.weaknesses.map(item => `<li>${item}</li>`).join("");
     }
 
     function restart() {
