@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MBTI 성격 유형 검사</title>
+  <style>
+    body {
+      font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      color: #333;
+    }
+    h1 { color: #333; margin: 20px 0 10px; }
+    p { color: #666; }
+    button {
+      background: #8B5A2B;
+      color: white;
+      border: none;
+      padding: 14px 40px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 20px;
+    }
+    button:hover { background: #A67B5B; }
+
+    #quiz-screen {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    #progress {
+      font-size: 18px;
+      margin: 20px 0;
+      color: #555;
+    }
+    #question-text {
+      font-size: 22px;
+      min-height: 90px;
+      margin: 30px 0;
+      padding: 0 20px;
+    }
+    .option {
+      display: block;
+      background: white;
+      border: 2px solid #ddd;
+      margin: 12px auto;
+      padding: 16px;
+      width: 85%;
+      max-width: 520px;
+      border-radius: 10px;
+      font-size: 17px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .option:hover {
+      border-color: #8B5A2B;
+      background: #fffaf0;
+    }
+    #result-screen h1 { font-size: 28px; }
+    #mbti-type {
+      font-size: 52px;
+      font-weight: bold;
+      color: #8B5A2B;
+      margin: 20px 0;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- 시작 화면 -->
+  <div id="start-screen">
+    <h1>MBTI 성격 유형 검사</h1>
+    <p>솔직하게 답변해주세요! (약 5~8분 소요)</p>
+    <button onclick="startTest()">테스트 시작하기</button>
+  </div>
+
+  <!-- 질문 화면 -->
+  <div id="quiz-screen" class="hidden">
+    <div id="progress">질문 <span id="current">1</span> / <span id="total">20</span></div>
+    <h2 id="question-text"></h2>
+    <div id="options"></div>
+  </div>
+
+  <!-- 결과 화면 -->
+  <div id="result-screen" class="hidden">
+    <h1>당신의 MBTI 유형은</h1>
+    <div id="mbti-type"></div>
+    <p id="description" style="font-size: 18px; line-height: 1.7; max-width: 600px; margin: 30px auto;"></p>
+    <button onclick="restart()">다시 하기</button>
+  </div>
+
+  <script>
+    let currentQuestion = 0;
+    let scores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+
+    const questions = [
+      { q: "사람이 많은 파티나 모임에서 에너지를 얻는 편이다.", options: [
+        {text:"매우 그렇다", score:{E:2}}, {text:"그렇다", score:{E:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{I:1}}, {text:"매우 아니다", score:{I:2}}
+      ]},
+      { q: "혼자 조용히 책 읽거나 생각하는 시간을 더 좋아한다.", options: [
+        {text:"매우 그렇다", score:{I:2}}, {text:"그렇다", score:{I:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{E:1}}, {text:"매우 아니다", score:{E:2}}
+      ]},
+      { q: "현실적인 사실과 구체적인 경험을 중요하게 생각한다.", options: [
+        {text:"매우 그렇다", score:{S:2}}, {text:"그렇다", score:{S:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{N:1}}, {text:"매우 아니다", score:{N:2}}
+      ]},
+      { q: "미래의 가능성이나 새로운 아이디어를 상상하는 것을 좋아한다.", options: [
+        {text:"매우 그렇다", score:{N:2}}, {text:"그렇다", score:{N:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{S:1}}, {text:"매우 아니다", score:{S:2}}
+      ]},
+      { q: "결정을 내릴 때 논리와 객관적인 사실을 우선한다.", options: [
+        {text:"매우 그렇다", score:{T:2}}, {text:"그렇다", score:{T:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{F:1}}, {text:"매우 아니다", score:{F:2}}
+      ]},
+      { q: "타인의 감정과 상황을 먼저 고려해서 결정한다.", options: [
+        {text:"매우 그렇다", score:{F:2}}, {text:"그렇다", score:{F:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{T:1}}, {text:"매우 아니다", score:{T:2}}
+      ]},
+      { q: "계획을 세우고 그 계획대로 움직이는 것을 선호한다.", options: [
+        {text:"매우 그렇다", score:{J:2}}, {text:"그렇다", score:{J:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{P:1}}, {text:"매우 아니다", score:{P:2}}
+      ]},
+      { q: "즉흥적으로 유연하게 상황에 대처하는 것을 좋아한다.", options: [
+        {text:"매우 그렇다", score:{P:2}}, {text:"그렇다", score:{P:1}},
+        {text:"보통이다", score:{}}, 
+        {text:"아니다", score:{J:1}}, {text:"매우 아니다", score:{J:2}}
+      ]},
+      // 더 정확한 결과를 원하시면 아래처럼 12~20개까지 추가 가능합니다.
+      // 지금은 8개로 테스트용으로 만들었어요. 필요하면 더 만들어 드릴게요.
+    ];
+
+    function startTest() {
+      document.getElementById("start-screen").classList.add("hidden");
+      document.getElementById("quiz-screen").classList.remove("hidden");
+      currentQuestion = 0;
+      scores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= questions.length) {
+        showResult();
+        return;
+      }
+
+      const q = questions[currentQuestion];
+      document.getElementById("current").textContent = currentQuestion + 1;
+      document.getElementById("total").textContent = questions.length;
+      document.getElementById("question-text").textContent = q.q;
+
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+
+      q.options.forEach(opt => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.textContent = opt.text;
+        div.onclick = () => selectAnswer(opt.score);
+        optionsDiv.appendChild(div);
+      });
+    }
+
+    function selectAnswer(scoreAdd) {
+      Object.keys(scoreAdd).forEach(key => {
+        scores[key] += scoreAdd[key];
+      });
+
+      currentQuestion++;
+      showQuestion();
+    }
+
+    function showResult() {
+      document.getElementById("quiz-screen").classList.add("hidden");
+      document.getElementById("result-screen").classList.remove("hidden");
+
+      const mbti = 
+        (scores.E >= scores.I ? 'E' : 'I') +
+        (scores.S >= scores.N ? 'S' : 'N') +
+        (scores.T >= scores.F ? 'T' : 'F') +
+        (scores.J >= scores.P ? 'J' : 'P');
+
+      document.getElementById("mbti-type").textContent = mbti;
+
+      const desc = {
+        "ENFP": "활기차고 창의적인 아이디어 뱅크! 사람들과 함께 새로운 것을 탐험하는 걸 좋아해요.",
+        "INTJ": "전략가. 체계적으로 미래를 계획하고 목표를 달성하는 타입입니다.",
+        "ISTJ": "책임감 강하고 신뢰할 수 있는 실무자 타입.",
+        "ENFJ": "타인을 이끌고 공감하는 따뜻한 리더.",
+        // 필요하면 16개 모두 추가해 드릴게요
+      };
+
+      document.getElementById("description").textContent = 
+        desc[mbti] || `${mbti} 유형은 독특하고 매력적인 성격을 가지고 있습니다!`;
+    }
+
+    function restart() {
+      document.getElementById("result-screen").classList.add("hidden");
+      document.getElementById("start-screen").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
